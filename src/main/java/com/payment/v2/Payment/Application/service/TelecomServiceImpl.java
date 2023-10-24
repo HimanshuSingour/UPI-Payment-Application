@@ -1,5 +1,7 @@
 package com.payment.v2.Payment.Application.service;
 
+import com.payment.v2.Payment.Application.Notification.NotificationsUtility;
+import com.payment.v2.Payment.Application.dto.UpdateAccountBalanceRequest;
 import com.payment.v2.Payment.Application.entity.AccountInformation;
 import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeRequest;
 import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeResponse;
@@ -8,12 +10,12 @@ import com.payment.v2.Payment.Application.dto.ActivationRequest;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
 import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
 import com.payment.v2.Payment.Application.entity.ServiceProvider;
-import com.payment.v2.Payment.Application.entity.UpdatingAccountinfomation;
 import com.payment.v2.Payment.Application.exceptions.RechargePlanNotFoundException;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderIsNullException;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderValidationException;
 import com.payment.v2.Payment.Application.repository.RechangeRepositories;
 import com.payment.v2.Payment.Application.repository.ServiceProviderRepositories;
+import com.twilio.Twilio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,15 @@ public class TelecomServiceImpl implements TelecomService {
     private RechangeRepositories rechangeRepositories;
 
     @Autowired
+    private NotificationsUtility notificationsUtility;
+
+
+    @Autowired
     private RestTemplate restTemplate;
+
+    static {
+        Twilio.init(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+    }
 
 
     // For Client (Add Provider Info)
@@ -123,12 +133,28 @@ public class TelecomServiceImpl implements TelecomService {
 
                     double accountBalance = accountInformation.getAccountBalance();
                     double rechargePack = rechargeRequest.getPlanAmount();
-                    remainAmount = accountBalance - rechargePack; // send this remainAmount to account information adn update there account balance by sending to
+                    remainAmount = accountBalance - rechargePack;
 
+                    // send this remainAmount to account information adn update there account balance by sending to
                     // need to update the balance to another service like remainAmount -> accountBalance
-                    String updateUrl = URL_FOR_ACCOUNT_UPDATE_SERVICE +  rechargeRequest.getAccountNumber() + "/" + rechargeRequest.getPassword() + "/" + remainAmount;
 
+                    UpdateAccountBalanceRequest updateRequest = new UpdateAccountBalanceRequest();
+                    updateRequest.setAccountNumber(rechargeRequest.getAccountNumber());
+                    updateRequest.setUpdatedAccountBalance(remainAmount);
 
+                    HttpHeaders headers = new HttpHeaders();
+
+                    HttpEntity<UpdateAccountBalanceRequest> requestEntity = new HttpEntity<>(updateRequest, headers);
+                    ResponseEntity<Void> responseFromAcc = restTemplate.exchange(URL_FOR_ACCOUNT_UPDATE_SERVICE, HttpMethod.PUT, requestEntity, Void.class);
+
+                    if (responseFromAcc.getStatusCode().is2xxSuccessful()) {
+
+                        System.out.println("Updated account balance");
+                    } else {
+
+                        System.out.println("Failed to update account balance");
+
+                    }
                 }
 
                 RechargePlanes rechargePlanes = rechargePlanesId.get();
@@ -150,6 +176,7 @@ public class TelecomServiceImpl implements TelecomService {
                 rechargeResponse.setRechargeStatus(RECHARGE_SUCCESSFUL);
                 rechargeResponse.setAccountStatus(DICUCTION_IN_ACCOUNT_BALANCE);
                 rechargeResponse.setRemainAccountBalance(String.valueOf(remainAmount));
+                notificationsUtility.sendForRechargeDoneAndAccountBalanceDone(remainAmount);
 
             } else {
                 throw new RechargePlanNotFoundException("Apologies, the selected recharge pack details are not available in our database.");
@@ -161,6 +188,7 @@ public class TelecomServiceImpl implements TelecomService {
 
         return rechargeResponse;
     }
+
 
 
     @Override
