@@ -95,27 +95,6 @@ public class TelecomServiceImpl implements TelecomService {
 
     // From here users will user belows
 
-
-    @Override
-    public List<RechargePlanes> getAllRechargePlansById(String providedId) {
-        return rechangeRepositories.findByProviderId(providedId);
-    }
-
-    @Override
-    public List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ProviderRequest providerRequest, double aboveAmount) {
-        return null;
-    }
-
-    @Override
-    public List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ProviderRequest providerRequest, double BelowAmount) {
-        return null;
-    }
-
-    @Override
-    public ActivationRequest getActivationInfo(ProviderRequest providerRequest, String packId) {
-        return null;
-    }
-
     @Override
     public RechargeResponse rechargeNow(RechargeRequest rechargeRequest) {
 
@@ -156,8 +135,30 @@ public class TelecomServiceImpl implements TelecomService {
         }
 
         return rechargeResponse;
-
     }
+
+
+    @Override
+    public List<RechargePlanes> getAllRechargePlansById(String providedId) {
+        return rechangeRepositories.findByProviderId(providedId);
+    }
+
+    @Override
+    public List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ProviderRequest providerRequest, double aboveAmount) {
+        return null;
+    }
+
+    @Override
+    public List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ProviderRequest providerRequest, double BelowAmount) {
+        return null;
+    }
+
+    @Override
+    public ActivationRequest getActivationInfo(ProviderRequest providerRequest, String packId) {
+        return null;
+    }
+
+
 
 }
 
