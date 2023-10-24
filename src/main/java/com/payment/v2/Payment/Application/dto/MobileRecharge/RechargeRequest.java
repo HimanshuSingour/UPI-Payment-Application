@@ -12,5 +12,9 @@ public class RechargeRequest {
     private String serviceProviderName;
     private String planId;
     private String planName;
-    private String planAmount;
+    private double planAmount;
+
+    private String accountNumber;
+    private String ifscCode;
+    private String password;
 }

@@ -25,6 +25,8 @@ public class RechargeResponse {
     private String coverageArea;
     private String specialNotes;
     private String additionalBenefits;
-    private String messageStatus;
+    private String rechargeStatus;
+    private String accountStatus;
+    private String remainAccountBalance;
 
 }

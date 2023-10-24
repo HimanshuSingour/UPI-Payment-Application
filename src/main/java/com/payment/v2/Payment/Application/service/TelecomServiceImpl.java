@@ -1,5 +1,6 @@
 package com.payment.v2.Payment.Application.service;
 
+import com.payment.v2.Payment.Application.entity.AccountInformation;
 import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeRequest;
 import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeResponse;
 import com.payment.v2.Payment.Application.dto.ProviderRequest;
@@ -13,13 +14,15 @@ import com.payment.v2.Payment.Application.exceptions.ServiceProviderValidationEx
 import com.payment.v2.Payment.Application.repository.RechangeRepositories;
 import com.payment.v2.Payment.Application.repository.ServiceProviderRepositories;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.payment.v2.Payment.Application.Utile.MobileRechargeConstant.RECHARGE_SUCCESSFUL;
+import static com.payment.v2.Payment.Application.Utile.MobileRechargeConstant.*;
 
 @Service
 public class TelecomServiceImpl implements TelecomService {
@@ -29,6 +32,9 @@ public class TelecomServiceImpl implements TelecomService {
 
     @Autowired
     private RechangeRepositories rechangeRepositories;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
 
     // For Client (Add Provider Info)
@@ -105,9 +111,33 @@ public class TelecomServiceImpl implements TelecomService {
 
             Optional<RechargePlanes> rechargePlanesId = rechangeRepositories
                     .findByPlanIdAndPlanNameAndPlanAmount(rechargeRequest.getPlanId(), rechargeRequest.getPlanName(),
-                            rechargeRequest.getPlanAmount());
+                            String.valueOf(rechargeRequest.getPlanAmount()));
 
             if (rechargePlanesId.isPresent()) {
+
+                // Calling bank Account Information Service
+                ResponseEntity<AccountInformation> response = restTemplate.getForEntity(URL_FOR_ACCOUNT_SERVICE + rechargeRequest.getAccountNumber() + "/"
+                        + rechargeRequest.getIfscCode() + "/" +
+                        rechargeRequest.getPassword(), AccountInformation.class);
+
+                AccountInformation accountInformation = response.getBody();
+
+                double remainAmount = 0;
+
+                if (accountInformation != null) {
+
+                    double accountBalance = accountInformation.getAccountBalance();
+                    double rechargePack = rechargeRequest.getPlanAmount();
+                    remainAmount = accountBalance - rechargePack;
+
+                    // update the account balance
+                    //this will save to bank databases; -> Production
+
+                    // for test
+                    System.out.println(accountBalance);
+                    System.out.println(rechargePack);
+                    System.out.println(remainAmount);
+                }
 
                 RechargePlanes rechargePlanes = rechargePlanesId.get();
                 rechargeResponse.setPlanName(rechargePlanes.getPlanName());
@@ -125,13 +155,16 @@ public class TelecomServiceImpl implements TelecomService {
                 rechargeResponse.setCoverageArea(rechargePlanes.getCoverageArea());
                 rechargeResponse.setSpecialNotes(rechargePlanes.getSpecialNotes());
                 rechargeResponse.setAdditionalBenefits(rechargePlanes.getAdditionalBenefits());
-                rechargeResponse.setMessageStatus(RECHARGE_SUCCESSFUL);
+                rechargeResponse.setRechargeStatus(RECHARGE_SUCCESSFUL);
+                rechargeResponse.setAccountStatus(DICUCTION_IN_ACCOUNT_BALANCE);
+                rechargeResponse.setRemainAccountBalance(String.valueOf(remainAmount));
+
             } else {
-                throw new RechargePlanNotFoundException("Recharge Plan Not Found");
+                throw new RechargePlanNotFoundException("Apologies, the selected recharge pack details are not available in our database.");
             }
 
         } else {
-            throw new RechargePlanNotFoundException("Service Details Not Found..");
+            throw new RechargePlanNotFoundException("Apologies, the selected service provider details are not available in our database.");
         }
 
         return rechargeResponse;
@@ -157,7 +190,6 @@ public class TelecomServiceImpl implements TelecomService {
     public ActivationRequest getActivationInfo(ProviderRequest providerRequest, String packId) {
         return null;
     }
-
 
 
 }
