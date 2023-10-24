@@ -1,10 +1,13 @@
 package com.payment.v2.Payment.Application.service;
 
+import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeRequest;
+import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeResponse;
 import com.payment.v2.Payment.Application.dto.ProviderRequest;
 import com.payment.v2.Payment.Application.dto.ActivationRequest;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
 import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
 import com.payment.v2.Payment.Application.entity.ServiceProvider;
+import com.payment.v2.Payment.Application.exceptions.RechargePlanNotFoundException;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderIsNullException;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderValidationException;
 import com.payment.v2.Payment.Application.repository.RechangeRepositories;
@@ -13,7 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+
+import static com.payment.v2.Payment.Application.Utile.MobileRechargeConstant.RECHARGE_SUCCESSFUL;
 
 @Service
 public class TelecomServiceImpl implements TelecomService {
@@ -53,10 +59,10 @@ public class TelecomServiceImpl implements TelecomService {
         RechargePlanes recharge = null;
 
         Optional<ServiceProvider> serviceProvider = serviceProviderRepositories.findById(serviceProviderRequest.getProviderId());
-        if(serviceProvider.isPresent()){
+        if (serviceProvider.isPresent()) {
 
             Optional<RechargePlanes> rechargePlanes = rechangeRepositories.findById(serviceProviderRequest.getPlaneId());
-             recharge = RechargePlanes.builder()
+            recharge = RechargePlanes.builder()
                     .planeId(serviceProviderRequest.getPlaneId())
                     .activationCode(serviceProviderRequest.getActivationCode())
                     .planAmount(serviceProviderRequest.getPlanAmount())
@@ -79,8 +85,7 @@ public class TelecomServiceImpl implements TelecomService {
 
             rechangeRepositories.save(recharge);
 
-        }
-        else{
+        } else {
 
             throw new ServiceProviderValidationException("Service Provider Detail is not Found..");
         }
@@ -111,6 +116,50 @@ public class TelecomServiceImpl implements TelecomService {
         return null;
     }
 
+    @Override
+    public RechargeResponse rechargeNow(RechargeRequest rechargeRequest) {
+
+        RechargeResponse rechargeResponse = new RechargeResponse();
+
+        Optional<ServiceProvider> serviceProvider = serviceProviderRepositories.findByServiceProviderName(rechargeRequest.getServiceProviderName());
+        if (serviceProvider.isPresent() && Objects.equals(serviceProvider.get().getServiceProviderName(), rechargeRequest.getPlanName())) {
+
+            Optional<RechargePlanes> rechargePlanesId = rechangeRepositories
+                    .findByPlanIdAndPlanNameAndPlanAmount(rechargeRequest.getPlanId(), rechargeRequest.getPlanName(),
+                            rechargeRequest.getPlanAmount());
+
+            if (rechargePlanesId.isPresent()) {
+
+                RechargePlanes rechargePlanes = rechargePlanesId.get();
+                rechargeResponse.setPlanName(rechargePlanes.getPlanName());
+                rechargeResponse.setPlanAmount(rechargePlanes.getPlanAmount());
+                rechargeResponse.setValidityDays(rechargePlanes.getValidityDays());
+                rechargeResponse.setDataLimitMB(rechargePlanes.getDataLimitMB());
+                rechargeResponse.setVoiceMinutes(rechargePlanes.getVoiceMinutes());
+                rechargeResponse.setPlanDescription(rechargePlanes.getPlanDescription());
+                rechargeResponse.setProviderName(rechargePlanes.getProviderName());
+                rechargeResponse.setInternational(rechargePlanes.isInternational());
+                rechargeResponse.setLimitedTimeOffer(rechargePlanes.isLimitedTimeOffer());
+                rechargeResponse.setPlanType(rechargePlanes.getPlanType());
+                rechargeResponse.setDataUsagePolicy(rechargePlanes.getDataUsagePolicy());
+                rechargeResponse.setActivationCode(rechargePlanes.getActivationCode());
+                rechargeResponse.setCoverageArea(rechargePlanes.getCoverageArea());
+                rechargeResponse.setSpecialNotes(rechargePlanes.getSpecialNotes());
+                rechargeResponse.setAdditionalBenefits(rechargePlanes.getAdditionalBenefits());
+                rechargeResponse.setMessageStatus(RECHARGE_SUCCESSFUL);
+            } else {
+                throw new RechargePlanNotFoundException("Recharge Plan Not Found");
+            }
+
+        } else {
+            throw new RechargePlanNotFoundException("Service Details Not Found..");
+        }
+
+        return rechargeResponse;
+
+    }
+
 }
+
 
 

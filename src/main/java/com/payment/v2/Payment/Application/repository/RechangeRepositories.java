@@ -8,10 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RechangeRepositories extends JpaRepository<RechargePlanes , String> {
     List<RechargePlanes> findByProviderId(String providerId);
 
-
+    @Query(
+            "SELECT u FROM RechargePlanes u WHERE u.planeId = :planeId AND " +
+                    "u.planName = :planName AND u.planAmount = :planAmount"
+    )
+    Optional<RechargePlanes> findByPlanIdAndPlanNameAndPlanAmount(String planeId, String planName , String planAmount);
 }

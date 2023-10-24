@@ -1,5 +1,7 @@
 package com.payment.v2.Payment.Application.controller;
 
+import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeRequest;
+import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeResponse;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
 import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
 import com.payment.v2.Payment.Application.entity.ServiceProvider;
@@ -11,8 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("telecom/v10/pro")
+
 @RestController
+@RequestMapping("telecom/v10/pro")
 public class RechargeController {
 
     @Autowired
@@ -36,6 +39,12 @@ public class RechargeController {
     ResponseEntity<List<RechargePlanes>> getAllRecharge(@PathVariable String providedId){
         List<RechargePlanes> t = telecomService.getAllRechargePlansById(providedId);
         return new ResponseEntity<>(t, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/get/v8/plans/recharge/now")
+    ResponseEntity<RechargeResponse> getAllRecharge(@RequestBody RechargeRequest rechargeRequest){
+       RechargeResponse response = telecomService.rechargeNow(rechargeRequest);
+        return new ResponseEntity<RechargeResponse>(response, HttpStatus.ACCEPTED);
     }
 
 }

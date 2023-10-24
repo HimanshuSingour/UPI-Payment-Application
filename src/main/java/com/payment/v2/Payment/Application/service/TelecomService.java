@@ -1,4 +1,6 @@
 package com.payment.v2.Payment.Application.service;
+import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeRequest;
+import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeResponse;
 import com.payment.v2.Payment.Application.dto.ProviderRequest;
 import com.payment.v2.Payment.Application.dto.ActivationRequest;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
@@ -19,6 +21,7 @@ public interface TelecomService {
     List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ProviderRequest providerRequest, double aboveAmount);
     List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ProviderRequest providerRequest, double BelowAmount);
     ActivationRequest getActivationInfo(ProviderRequest providerRequest, String packId);
+    RechargeResponse rechargeNow(RechargeRequest rechargeRequest);
 
 
 
