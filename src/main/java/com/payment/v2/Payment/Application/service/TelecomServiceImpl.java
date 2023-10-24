@@ -1,9 +1,9 @@
 package com.payment.v2.Payment.Application.service;
 
-import com.payment.v2.Payment.Application.dto.RechargePlanActivitionInfoRequest;
-import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
+import com.payment.v2.Payment.Application.dto.ProviderRequest;
+import com.payment.v2.Payment.Application.dto.ActivationRequest;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
-import com.payment.v2.Payment.Application.entity.Request;
+import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
 import com.payment.v2.Payment.Application.entity.ServiceProvider;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderIsNullException;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderValidationException;
@@ -27,21 +27,20 @@ public class TelecomServiceImpl implements TelecomService {
 
     // For Client (Add Provider Info)
     @Override
-    public ServiceProvider addServiceProvides(ServiceProvider service) {
+    public ServiceProvider addServiceProvides(ServiceProvider serviceProvider) {
 
-        if (service == null) {
-            throw new ServiceProviderIsNullException("Service provider is null");
+        if (serviceProvider == null) {
+            throw new ServiceProviderIsNullException("Service Provider Detail is not Found..");
         }
 
-        if (service.getServiceProviderName() == null || service.getServiceProviderName().isEmpty()) {
+        if (serviceProvider.getServiceProviderName() == null || serviceProvider.getServiceProviderName().isEmpty()) {
             throw new ServiceProviderValidationException("Service provider name is required");
         }
 
         ServiceProvider provider = ServiceProvider.builder()
-                .providerId(service.getProviderId())
-
-                .serviceProviderName(service.getServiceProviderName())
-                .website(service.getWebsite())
+                .providerId(serviceProvider.getProviderId())
+                .serviceProviderName(serviceProvider.getServiceProviderName())
+                .website(serviceProvider.getWebsite())
                 .build();
 
         serviceProviderRepositories.save(provider);
@@ -49,37 +48,47 @@ public class TelecomServiceImpl implements TelecomService {
         return provider;
     }
 
-    public String addRechargePlan(Request request) {
+    public RechargePlanes addRechargePlan(ServiceProviderRequest serviceProviderRequest) {
 
-        Optional<ServiceProvider> serviceProvider = serviceProviderRepositories.findById(request.getProviderId());
-        Optional<RechargePlanes> rechargePlanes = rechangeRepositories.findById(request.getPlaneId());
+        RechargePlanes recharge = null;
 
-        RechargePlanes recharge = RechargePlanes.builder()
-                .planeId(request.getPlaneId())
-                .activationCode(request.getActivationCode())
-                .planAmount(request.getPlanAmount())
-                .planDescription(request.getPlanDescription())
-                .additionalBenefits(request.getAdditionalBenefits())
-                .planName(request.getPlanName())
-                .planType(request.getPlanType())
-                .dataLimitMB(request.getDataLimitMB())
-                .providerName(request.getProviderName())
-                .dataUsagePolicy(request.getDataUsagePolicy())
-                .specialNotes(request.getSpecialNotes())
-                .validityDays(request.getValidityDays())
-                .voiceMinutes(request.getVoiceMinutes())
-                .isInternational(request.isInternational())
-                .coverageArea(request.getCoverageArea())
-                .isLimitedTimeOffer(request.isLimitedTimeOffer())
-                .serviceProvider(serviceProvider.get())
-                .providerId(request.getProviderId())
-                .build();
+        Optional<ServiceProvider> serviceProvider = serviceProviderRepositories.findById(serviceProviderRequest.getProviderId());
+        if(serviceProvider.isPresent()){
 
-        rechangeRepositories.save(recharge);
+            Optional<RechargePlanes> rechargePlanes = rechangeRepositories.findById(serviceProviderRequest.getPlaneId());
+             recharge = RechargePlanes.builder()
+                    .planeId(serviceProviderRequest.getPlaneId())
+                    .activationCode(serviceProviderRequest.getActivationCode())
+                    .planAmount(serviceProviderRequest.getPlanAmount())
+                    .planDescription(serviceProviderRequest.getPlanDescription())
+                    .additionalBenefits(serviceProviderRequest.getAdditionalBenefits())
+                    .planName(serviceProviderRequest.getPlanName())
+                    .planType(serviceProviderRequest.getPlanType())
+                    .dataLimitMB(serviceProviderRequest.getDataLimitMB())
+                    .providerName(serviceProviderRequest.getProviderName())
+                    .dataUsagePolicy(serviceProviderRequest.getDataUsagePolicy())
+                    .specialNotes(serviceProviderRequest.getSpecialNotes())
+                    .validityDays(serviceProviderRequest.getValidityDays())
+                    .voiceMinutes(serviceProviderRequest.getVoiceMinutes())
+                    .isInternational(serviceProviderRequest.isInternational())
+                    .coverageArea(serviceProviderRequest.getCoverageArea())
+                    .isLimitedTimeOffer(serviceProviderRequest.isLimitedTimeOffer())
+                    .serviceProvider(serviceProvider.get())
+                    .providerId(serviceProviderRequest.getProviderId())
+                    .build();
 
-        return "saved";
+            rechangeRepositories.save(recharge);
 
+        }
+        else{
+
+            throw new ServiceProviderValidationException("Service Provider Detail is not Found..");
+        }
+
+        return recharge;
     }
+
+    // From here users will user belows
 
 
     @Override
@@ -88,17 +97,17 @@ public class TelecomServiceImpl implements TelecomService {
     }
 
     @Override
-    public List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ServiceProviderRequest serviceProviderRequest, double aboveAmount) {
+    public List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ProviderRequest providerRequest, double aboveAmount) {
         return null;
     }
 
     @Override
-    public List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ServiceProviderRequest serviceProviderRequest, double BelowAmount) {
+    public List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ProviderRequest providerRequest, double BelowAmount) {
         return null;
     }
 
     @Override
-    public RechargePlanActivitionInfoRequest getActivationInfo(ServiceProviderRequest serviceProviderRequest, String packId) {
+    public ActivationRequest getActivationInfo(ProviderRequest providerRequest, String packId) {
         return null;
     }
 

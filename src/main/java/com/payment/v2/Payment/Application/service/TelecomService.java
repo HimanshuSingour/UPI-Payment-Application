@@ -1,8 +1,8 @@
 package com.payment.v2.Payment.Application.service;
-import com.payment.v2.Payment.Application.dto.RechargePlanActivitionInfoRequest;
-import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
+import com.payment.v2.Payment.Application.dto.ProviderRequest;
+import com.payment.v2.Payment.Application.dto.ActivationRequest;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
-import com.payment.v2.Payment.Application.entity.Request;
+import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
 import com.payment.v2.Payment.Application.entity.ServiceProvider;
 
 
@@ -12,13 +12,13 @@ public interface TelecomService {
 
     // for Developers
     ServiceProvider addServiceProvides(ServiceProvider serviceProvider);
-    String addRechargePlan(Request request);
+     RechargePlanes addRechargePlan(ServiceProviderRequest serviceProviderRequest);
 
     // Users
     List<RechargePlanes> getAllRechargePlansById(String providedId);
-    List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ServiceProviderRequest serviceProviderRequest , double aboveAmount);
-    List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ServiceProviderRequest serviceProviderRequest , double BelowAmount);
-    RechargePlanActivitionInfoRequest getActivationInfo(ServiceProviderRequest serviceProviderRequest , String packId);
+    List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ProviderRequest providerRequest, double aboveAmount);
+    List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ProviderRequest providerRequest, double BelowAmount);
+    ActivationRequest getActivationInfo(ProviderRequest providerRequest, String packId);
 
 
 

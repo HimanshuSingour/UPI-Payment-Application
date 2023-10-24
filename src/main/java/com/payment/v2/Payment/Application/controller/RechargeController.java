@@ -1,8 +1,7 @@
 package com.payment.v2.Payment.Application.controller;
 
-import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
-import com.payment.v2.Payment.Application.entity.Request;
+import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
 import com.payment.v2.Payment.Application.entity.ServiceProvider;
 import com.payment.v2.Payment.Application.service.TelecomService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,9 @@ public class RechargeController {
     }
 
     @GetMapping("/add/v8/plans")
-    ResponseEntity<String> addRechargesPacks(@RequestBody Request request){
-         String string = telecomService.addRechargePlan(request);
-        return new ResponseEntity<String>(string , HttpStatus.ACCEPTED);
+    ResponseEntity<RechargePlanes> addRechargesPacks(@RequestBody ServiceProviderRequest serviceProviderRequest){
+        RechargePlanes Re = telecomService.addRechargePlan(serviceProviderRequest);
+        return new ResponseEntity<RechargePlanes>(Re , HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/get/v8/plans/{providedId}")

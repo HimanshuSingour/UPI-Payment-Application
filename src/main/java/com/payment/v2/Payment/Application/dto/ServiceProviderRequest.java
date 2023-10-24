@@ -1,13 +1,28 @@
 package com.payment.v2.Payment.Application.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServiceProviderRequest {
 
     private String providerId;
+    private String planeId;
+    private String planName;
+    private double planAmount;
+    private int validityDays;
+    private int dataLimitMB;
+    private int voiceMinutes;
+    private String planDescription;
+    private String providerName;
+    private boolean isInternational;
+    private boolean isLimitedTimeOffer;
+    private String planType;
+    private String dataUsagePolicy;
+    private String activationCode;
+    private String coverageArea;
+    private String specialNotes;
+    private String additionalBenefits;
 }
