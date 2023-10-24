@@ -13,7 +13,6 @@ public class RechargeRequest {
     private String planId;
     private String planName;
     private double planAmount;
-
     private String accountNumber;
     private String ifscCode;
     private String password;

@@ -42,7 +42,7 @@ public class RechargeController {
     }
 
     @GetMapping("/get/v8/plans/recharge/now")
-    ResponseEntity<RechargeResponse> getAllRecharge(@RequestBody RechargeRequest rechargeRequest){
+    ResponseEntity<RechargeResponse> rechargeNow(@RequestBody RechargeRequest rechargeRequest){
        RechargeResponse response = telecomService.rechargeNow(rechargeRequest);
         return new ResponseEntity<RechargeResponse>(response, HttpStatus.ACCEPTED);
     }

@@ -8,19 +8,18 @@ import com.payment.v2.Payment.Application.dto.ActivationRequest;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
 import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
 import com.payment.v2.Payment.Application.entity.ServiceProvider;
+import com.payment.v2.Payment.Application.entity.UpdatingAccountinfomation;
 import com.payment.v2.Payment.Application.exceptions.RechargePlanNotFoundException;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderIsNullException;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderValidationException;
 import com.payment.v2.Payment.Application.repository.RechangeRepositories;
 import com.payment.v2.Payment.Application.repository.ServiceProviderRepositories;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static com.payment.v2.Payment.Application.Utile.MobileRechargeConstant.*;
 
@@ -116,27 +115,20 @@ public class TelecomServiceImpl implements TelecomService {
             if (rechargePlanesId.isPresent()) {
 
                 // Calling bank Account Information Service
-                ResponseEntity<AccountInformation> response = restTemplate.getForEntity(URL_FOR_ACCOUNT_SERVICE + rechargeRequest.getAccountNumber() + "/"
-                        + rechargeRequest.getIfscCode() + "/" +
-                        rechargeRequest.getPassword(), AccountInformation.class);
-
+                ResponseEntity<AccountInformation> response = restTemplate.getForEntity(URL_FOR_ACCOUNT_SERVICE + rechargeRequest.getAccountNumber() + "/" + rechargeRequest.getIfscCode() + "/" + rechargeRequest.getPassword(), AccountInformation.class);
                 AccountInformation accountInformation = response.getBody();
 
                 double remainAmount = 0;
-
                 if (accountInformation != null) {
 
                     double accountBalance = accountInformation.getAccountBalance();
                     double rechargePack = rechargeRequest.getPlanAmount();
-                    remainAmount = accountBalance - rechargePack;
+                    remainAmount = accountBalance - rechargePack; // send this remainAmount to account information adn update there account balance by sending to
 
-                    // update the account balance
-                    //this will save to bank databases; -> Production
+                    // need to update the balance to another service like remainAmount -> accountBalance
+                    String updateUrl = URL_FOR_ACCOUNT_UPDATE_SERVICE +  rechargeRequest.getAccountNumber() + "/" + rechargeRequest.getPassword() + "/" + remainAmount;
 
-                    // for test
-                    System.out.println(accountBalance);
-                    System.out.println(rechargePack);
-                    System.out.println(remainAmount);
+
                 }
 
                 RechargePlanes rechargePlanes = rechargePlanesId.get();
