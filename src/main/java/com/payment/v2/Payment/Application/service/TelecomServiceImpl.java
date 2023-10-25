@@ -135,29 +135,15 @@ public class TelecomServiceImpl implements TelecomService {
                     double rechargePack = rechargeRequest.getPlanAmount();
                     remainAmount = accountBalance - rechargePack;
 
-                    // send this remainAmount to account information adn update there account balance by sending to
-                    // need to update the balance to another service like remainAmount -> accountBalance
-
                     UpdateAccountBalanceRequest updateRequest = new UpdateAccountBalanceRequest();
                     updateRequest.setAccountNumber(rechargeRequest.getAccountNumber());
-                    updateRequest.setUpdatedAccountBalance(remainAmount);
+                    updateRequest.setAccountBalance(remainAmount);
 
-                    HttpHeaders headers = new HttpHeaders();
-
-                    HttpEntity<UpdateAccountBalanceRequest> requestEntity = new HttpEntity<>(updateRequest, headers);
-                    ResponseEntity<Void> responseFromAcc = restTemplate.exchange(URL_FOR_ACCOUNT_UPDATE_SERVICE, HttpMethod.PUT, requestEntity, Void.class);
-
-                    if (responseFromAcc.getStatusCode().is2xxSuccessful()) {
-
-                        System.out.println("Updated account balance");
-                    } else {
-
-                        System.out.println("Failed to update account balance");
-
-                    }
+                    restTemplate.put(URL_FOR_ACCOUNT_UPDATE_SERVICE, updateRequest);
                 }
 
                 RechargePlanes rechargePlanes = rechargePlanesId.get();
+
                 rechargeResponse.setPlanName(rechargePlanes.getPlanName());
                 rechargeResponse.setPlanAmount(rechargePlanes.getPlanAmount());
                 rechargeResponse.setValidityDays(rechargePlanes.getValidityDays());

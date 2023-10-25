@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class UpdateAccountBalanceRequest {
 
     private String accountNumber;
-    private double updatedAccountBalance;
+    private double accountBalance;
 
 }
