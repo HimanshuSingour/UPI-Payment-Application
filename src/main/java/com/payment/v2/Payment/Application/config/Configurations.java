@@ -11,4 +11,7 @@ public class Configurations {
     RestTemplate restTemplate(){
         return new RestTemplate();
     }
+
+    public static final String URL_FOR_ACCOUNT_SERVICE = "http://localhost:9090/finance/v1/bank/v4/bharat/get-account-details/";
+    public static final String URL_FOR_ACCOUNT_UPDATE_SERVICE = "http://localhost:9090/finance/v1/bank/v4/bharat/update/money";
 }

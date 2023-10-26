@@ -2,7 +2,7 @@
 
 # Database Configuration
 server:
-  port: 1000
+  port: 7070
 
 spring:
   datasource:

@@ -13,7 +13,7 @@ import java.util.List;
 public interface TelecomService {
 
     // for Developers
-    ServiceProvider addServiceProvides(ServiceProvider serviceProvider);
+     ServiceProvider addServiceProvides(ServiceProvider serviceProvider);
      RechargePlanes addRechargePlan(ServiceProviderRequest serviceProviderRequest);
 
     // Users
@@ -22,11 +22,6 @@ public interface TelecomService {
     List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ProviderRequest providerRequest, double BelowAmount);
     ActivationRequest getActivationInfo(ProviderRequest providerRequest, String packId);
     RechargeResponse rechargeNow(RechargeRequest rechargeRequest);
-
-
-
-
-
 
 
 

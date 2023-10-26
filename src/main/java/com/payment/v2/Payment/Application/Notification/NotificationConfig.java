@@ -5,7 +5,7 @@ import com.twilio.type.PhoneNumber;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import static com.payment.v2.Payment.Application.Utile.MobileRechargeConstant.TWILIO_PHONE_NUMBER;
+import static com.payment.v2.Payment.Application.constants.MobileRechargeConstant.TWILIO_PHONE_NUMBER;
 
 
 
@@ -14,6 +14,7 @@ import static com.payment.v2.Payment.Application.Utile.MobileRechargeConstant.TW
 public class NotificationConfig {
 
     public void sendSMS(String messageBody) {
+
         PhoneNumber recipientNumber = new com.twilio.type.PhoneNumber("+916266769479");
         PhoneNumber twilioNumber = new com.twilio.type.PhoneNumber(TWILIO_PHONE_NUMBER);
 

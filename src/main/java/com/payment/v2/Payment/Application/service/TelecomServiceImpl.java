@@ -23,7 +23,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
-import static com.payment.v2.Payment.Application.Utile.MobileRechargeConstant.*;
+import static com.payment.v2.Payment.Application.config.Configurations.URL_FOR_ACCOUNT_SERVICE;
+import static com.payment.v2.Payment.Application.config.Configurations.URL_FOR_ACCOUNT_UPDATE_SERVICE;
+import static com.payment.v2.Payment.Application.constants.MobileRechargeConstant.*;
 
 @Service
 public class TelecomServiceImpl implements TelecomService {
@@ -125,7 +127,8 @@ public class TelecomServiceImpl implements TelecomService {
             if (rechargePlanesId.isPresent()) {
 
                 // Calling bank Account Information Service
-                ResponseEntity<AccountInformation> response = restTemplate.getForEntity(URL_FOR_ACCOUNT_SERVICE + rechargeRequest.getAccountNumber() + "/" + rechargeRequest.getIfscCode() + "/" + rechargeRequest.getPassword(), AccountInformation.class);
+                ResponseEntity<AccountInformation> response = restTemplate
+                        .getForEntity(URL_FOR_ACCOUNT_SERVICE + rechargeRequest.getAccountNumber() + "/" + rechargeRequest.getIfscCode() + "/" + rechargeRequest.getPassword(), AccountInformation.class);
                 AccountInformation accountInformation = response.getBody();
 
                 double remainAmount = 0;
