@@ -14,4 +14,5 @@ public interface ServiceProviderRepositories extends JpaRepository<ServiceProvid
 
 
     Optional<ServiceProvider> findByServiceProviderName(String serviceProviderName);
+
 }

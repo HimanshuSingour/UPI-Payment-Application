@@ -2,7 +2,7 @@
 
 # Database Configuration
 server:
-  port: 7070
+  port: 8080
 
 spring:
   datasource:

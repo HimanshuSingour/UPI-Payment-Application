@@ -20,11 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.*;
 
-import static com.payment.v2.Payment.Application.config.Configurations.URL_FOR_ACCOUNT_SERVICE;
-import static com.payment.v2.Payment.Application.config.Configurations.URL_FOR_ACCOUNT_UPDATE_SERVICE;
+import static com.payment.v2.Payment.Application.config.ExternalServices.URL_FOR_ACCOUNT_SERVICE;
+import static com.payment.v2.Payment.Application.config.ExternalServices.URL_FOR_ACCOUNT_UPDATE_SERVICE;
 import static com.payment.v2.Payment.Application.constants.MobileRechargeConstant.*;
 
 @Service
@@ -39,9 +41,9 @@ public class TelecomServiceImpl implements TelecomService {
     @Autowired
     private NotificationsUtility notificationsUtility;
 
-
     @Autowired
     private RestTemplate restTemplate;
+
 
     static {
         Twilio.init(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);

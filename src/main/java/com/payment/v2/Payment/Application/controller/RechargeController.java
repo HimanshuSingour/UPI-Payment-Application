@@ -35,8 +35,9 @@ public class RechargeController {
         return new ResponseEntity<RechargePlanes>(Re , HttpStatus.ACCEPTED);
     }
 
+    // users
     @GetMapping("/get/v8/plans/{providedId}")
-    ResponseEntity<List<RechargePlanes>> getAllRecharge(@PathVariable String providedId){
+    ResponseEntity<List<RechargePlanes>> getRechargeById(@PathVariable String providedId){
         List<RechargePlanes> t = telecomService.getAllRechargePlansById(providedId);
         return new ResponseEntity<>(t, HttpStatus.ACCEPTED);
     }
