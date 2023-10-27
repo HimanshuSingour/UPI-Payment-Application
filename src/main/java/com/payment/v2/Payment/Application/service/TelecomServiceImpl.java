@@ -162,6 +162,7 @@ public class TelecomServiceImpl implements TelecomService {
 
         List<RechargePlanes> rechargePlanes = rechangeRepositories.findByProviderId(providerRequest.getProviderId());
         List<RechargePlanes> list = new ArrayList<>();
+
         for (RechargePlanes plans : rechargePlanes) {
             try {
                 if (plans.getPlanAmount() > providerRequest.getAmount()) {
@@ -176,6 +177,7 @@ public class TelecomServiceImpl implements TelecomService {
 
     @Override
     public List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ProviderRequest providerRequest, double BelowAmount) {
+
         List<RechargePlanes> rechargePlanes = rechangeRepositories.findByProviderId(providerRequest.getProviderId());
         List<RechargePlanes> list = new ArrayList<>();
 
