@@ -49,14 +49,14 @@ public class RechargeController {
         return new ResponseEntity<RechargeResponse>(response, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/packs/below/amount")
-    ResponseEntity<List<RechargePlanes>> giveByBelowAmount(@RequestBody ProviderRequest providerRequest){
+    @GetMapping("/packs/above/amount")
+    ResponseEntity<List<RechargePlanes>> giveByAboveAmount(@RequestBody ProviderRequest providerRequest){
         List<RechargePlanes> response = telecomService.getAllRechargeAboveTheGivenAmount(providerRequest);
         return new ResponseEntity<List<RechargePlanes>>(response, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/packs/above/amount")
-    ResponseEntity<List<RechargePlanes>> giveByAboveAmount(@RequestBody ProviderRequest providerRequest){
+    @GetMapping("/packs/below/amount")
+    ResponseEntity<List<RechargePlanes>> giveByBelowAmount(@RequestBody ProviderRequest providerRequest){
         List<RechargePlanes> response = telecomService.getAllRechargeAboveTheGivenAmount(providerRequest);
         return new ResponseEntity<List<RechargePlanes>>(response, HttpStatus.ACCEPTED);
     }

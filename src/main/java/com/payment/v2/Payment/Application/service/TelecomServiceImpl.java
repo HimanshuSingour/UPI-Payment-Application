@@ -184,6 +184,7 @@ public class TelecomServiceImpl implements TelecomService {
                 if (plans.getPlanAmount() < BelowAmount) {
                     list.add(plans);
                 }
+
             } catch (RechargePacksNotFound e) {
                 throw new RechargePlanNotFoundException("Recharge packs are not available for the given amount");
             }
