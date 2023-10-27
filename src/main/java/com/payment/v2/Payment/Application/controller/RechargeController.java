@@ -2,6 +2,7 @@ package com.payment.v2.Payment.Application.controller;
 
 import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeRequest;
 import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeResponse;
+import com.payment.v2.Payment.Application.dto.ProviderRequest;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
 import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
 import com.payment.v2.Payment.Application.entity.ServiceProvider;
@@ -15,7 +16,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("telecom/v10/pro")
+@RequestMapping("/telecom/v10/pro")
 public class RechargeController {
 
     @Autowired
@@ -46,6 +47,18 @@ public class RechargeController {
     ResponseEntity<RechargeResponse> rechargeNow(@RequestBody RechargeRequest rechargeRequest){
        RechargeResponse response = telecomService.rechargeNow(rechargeRequest);
         return new ResponseEntity<RechargeResponse>(response, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/packs/below/amount")
+    ResponseEntity<List<RechargePlanes>> giveByBelowAmount(@RequestBody ProviderRequest providerRequest){
+        List<RechargePlanes> response = telecomService.getAllRechargeAboveTheGivenAmount(providerRequest);
+        return new ResponseEntity<List<RechargePlanes>>(response, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/packs/above/amount")
+    ResponseEntity<List<RechargePlanes>> giveByAboveAmount(@RequestBody ProviderRequest providerRequest){
+        List<RechargePlanes> response = telecomService.getAllRechargeAboveTheGivenAmount(providerRequest);
+        return new ResponseEntity<List<RechargePlanes>>(response, HttpStatus.ACCEPTED);
     }
 
 }

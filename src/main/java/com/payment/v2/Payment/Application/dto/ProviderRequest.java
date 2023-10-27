@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class ProviderRequest {
 
     private String providerId;
+    private double amount;
 }

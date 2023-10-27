@@ -1,14 +1,11 @@
 package com.payment.v2.Payment.Application.service;
 
 import com.payment.v2.Payment.Application.Notification.NotificationsUtility;
-import com.payment.v2.Payment.Application.dto.UpdateAccountBalanceRequest;
+import com.payment.v2.Payment.Application.dto.*;
 import com.payment.v2.Payment.Application.entity.AccountInformation;
 import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeRequest;
 import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeResponse;
-import com.payment.v2.Payment.Application.dto.ProviderRequest;
-import com.payment.v2.Payment.Application.dto.ActivationRequest;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
-import com.payment.v2.Payment.Application.dto.ServiceProviderRequest;
 import com.payment.v2.Payment.Application.entity.ServiceProvider;
 import com.payment.v2.Payment.Application.exceptions.RechargePlanNotFoundException;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderIsNullException;
@@ -62,11 +59,7 @@ public class TelecomServiceImpl implements TelecomService {
             throw new ServiceProviderValidationException("Service provider name is required");
         }
 
-        ServiceProvider provider = ServiceProvider.builder()
-                .providerId(serviceProvider.getProviderId())
-                .serviceProviderName(serviceProvider.getServiceProviderName())
-                .website(serviceProvider.getWebsite())
-                .build();
+        ServiceProvider provider = ServiceProvider.builder().providerId(serviceProvider.getProviderId()).serviceProviderName(serviceProvider.getServiceProviderName()).website(serviceProvider.getWebsite()).build();
 
         serviceProviderRepositories.save(provider);
 
@@ -81,26 +74,7 @@ public class TelecomServiceImpl implements TelecomService {
         if (serviceProvider.isPresent()) {
 
             Optional<RechargePlanes> rechargePlanes = rechangeRepositories.findById(serviceProviderRequest.getPlaneId());
-            recharge = RechargePlanes.builder()
-                    .planeId(serviceProviderRequest.getPlaneId())
-                    .activationCode(serviceProviderRequest.getActivationCode())
-                    .planAmount(serviceProviderRequest.getPlanAmount())
-                    .planDescription(serviceProviderRequest.getPlanDescription())
-                    .additionalBenefits(serviceProviderRequest.getAdditionalBenefits())
-                    .planName(serviceProviderRequest.getPlanName())
-                    .planType(serviceProviderRequest.getPlanType())
-                    .dataLimitMB(serviceProviderRequest.getDataLimitMB())
-                    .providerName(serviceProviderRequest.getProviderName())
-                    .dataUsagePolicy(serviceProviderRequest.getDataUsagePolicy())
-                    .specialNotes(serviceProviderRequest.getSpecialNotes())
-                    .validityDays(serviceProviderRequest.getValidityDays())
-                    .voiceMinutes(serviceProviderRequest.getVoiceMinutes())
-                    .isInternational(serviceProviderRequest.isInternational())
-                    .coverageArea(serviceProviderRequest.getCoverageArea())
-                    .isLimitedTimeOffer(serviceProviderRequest.isLimitedTimeOffer())
-                    .serviceProvider(serviceProvider.get())
-                    .providerId(serviceProviderRequest.getProviderId())
-                    .build();
+            recharge = RechargePlanes.builder().planeId(serviceProviderRequest.getPlaneId()).activationCode(serviceProviderRequest.getActivationCode()).planAmount(serviceProviderRequest.getPlanAmount()).planDescription(serviceProviderRequest.getPlanDescription()).additionalBenefits(serviceProviderRequest.getAdditionalBenefits()).planName(serviceProviderRequest.getPlanName()).planType(serviceProviderRequest.getPlanType()).dataLimitMB(serviceProviderRequest.getDataLimitMB()).providerName(serviceProviderRequest.getProviderName()).dataUsagePolicy(serviceProviderRequest.getDataUsagePolicy()).specialNotes(serviceProviderRequest.getSpecialNotes()).validityDays(serviceProviderRequest.getValidityDays()).voiceMinutes(serviceProviderRequest.getVoiceMinutes()).isInternational(serviceProviderRequest.isInternational()).coverageArea(serviceProviderRequest.getCoverageArea()).isLimitedTimeOffer(serviceProviderRequest.isLimitedTimeOffer()).serviceProvider(serviceProvider.get()).providerId(serviceProviderRequest.getProviderId()).build();
 
             rechangeRepositories.save(recharge);
 
@@ -122,15 +96,12 @@ public class TelecomServiceImpl implements TelecomService {
         Optional<ServiceProvider> serviceProvider = serviceProviderRepositories.findByServiceProviderName(rechargeRequest.getServiceProviderName());
         if (serviceProvider.isPresent() && Objects.equals(serviceProvider.get().getServiceProviderName(), rechargeRequest.getPlanName())) {
 
-            Optional<RechargePlanes> rechargePlanesId = rechangeRepositories
-                    .findByPlanIdAndPlanNameAndPlanAmount(rechargeRequest.getPlanId(), rechargeRequest.getPlanName(),
-                            String.valueOf(rechargeRequest.getPlanAmount()));
+            Optional<RechargePlanes> rechargePlanesId = rechangeRepositories.findByPlanIdAndPlanNameAndPlanAmount(rechargeRequest.getPlanId(), rechargeRequest.getPlanName(), String.valueOf(rechargeRequest.getPlanAmount()));
 
             if (rechargePlanesId.isPresent()) {
 
                 // Calling bank Account Information Service
-                ResponseEntity<AccountInformation> response = restTemplate
-                        .getForEntity(URL_FOR_ACCOUNT_SERVICE + rechargeRequest.getAccountNumber() + "/" + rechargeRequest.getIfscCode() + "/" + rechargeRequest.getPassword(), AccountInformation.class);
+                ResponseEntity<AccountInformation> response = restTemplate.getForEntity(URL_FOR_ACCOUNT_SERVICE + rechargeRequest.getAccountNumber() + "/" + rechargeRequest.getIfscCode() + "/" + rechargeRequest.getPassword(), AccountInformation.class);
                 AccountInformation accountInformation = response.getBody();
 
                 double remainAmount = 0;
@@ -181,20 +152,43 @@ public class TelecomServiceImpl implements TelecomService {
     }
 
 
-
     @Override
     public List<RechargePlanes> getAllRechargePlansById(String providedId) {
         return rechangeRepositories.findByProviderId(providedId);
     }
 
     @Override
-    public List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ProviderRequest providerRequest, double aboveAmount) {
-        return null;
+    public List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ProviderRequest providerRequest) {
+
+        List<RechargePlanes> rechargePlanes = rechangeRepositories.findByProviderId(providerRequest.getProviderId());
+        List<RechargePlanes> list = new ArrayList<>();
+        for (RechargePlanes plans : rechargePlanes) {
+            try {
+                if (plans.getPlanAmount() > providerRequest.getAmount()) {
+                    list.add(plans);
+                }
+            } catch (RechargePacksNotFound e) {
+                throw new RechargePlanNotFoundException("Recharge packs are not available for the given amount");
+            }
+        }
+        return list;
     }
 
     @Override
     public List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ProviderRequest providerRequest, double BelowAmount) {
-        return null;
+        List<RechargePlanes> rechargePlanes = rechangeRepositories.findByProviderId(providerRequest.getProviderId());
+        List<RechargePlanes> list = new ArrayList<>();
+
+        for (RechargePlanes plans : rechargePlanes) {
+            try {
+                if (plans.getPlanAmount() < BelowAmount) {
+                    list.add(plans);
+                }
+            } catch (RechargePacksNotFound e) {
+                throw new RechargePlanNotFoundException("Recharge packs are not available for the given amount");
+            }
+        }
+        return list;
     }
 
     @Override

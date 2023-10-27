@@ -18,7 +18,7 @@ public interface TelecomService {
 
     // Users
     List<RechargePlanes> getAllRechargePlansById(String providedId);
-    List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ProviderRequest providerRequest, double aboveAmount);
+    List<RechargePlanes> getAllRechargeAboveTheGivenAmount(ProviderRequest providerRequest);
     List<RechargePlanes> getAllRechargeBelowTheGivenAmount(ProviderRequest providerRequest, double BelowAmount);
     ActivationRequest getActivationInfo(ProviderRequest providerRequest, String packId);
     RechargeResponse rechargeNow(RechargeRequest rechargeRequest);
