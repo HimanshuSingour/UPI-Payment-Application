@@ -8,6 +8,7 @@ import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeResponse;
 import com.payment.v2.Payment.Application.entity.RechargePlanes;
 import com.payment.v2.Payment.Application.entity.ServiceProvider;
 import com.payment.v2.Payment.Application.exceptions.RechargePlanNotFoundException;
+import com.payment.v2.Payment.Application.exceptions.ServiceIsDownException;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderIsNullException;
 import com.payment.v2.Payment.Application.exceptions.ServiceProviderValidationException;
 import com.payment.v2.Payment.Application.repository.RechangeRepositories;
@@ -16,6 +17,9 @@ import com.twilio.Twilio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -94,29 +98,36 @@ public class TelecomServiceImpl implements TelecomService {
         RechargeResponse rechargeResponse = new RechargeResponse();
 
         Optional<ServiceProvider> serviceProvider = serviceProviderRepositories.findByServiceProviderName(rechargeRequest.getServiceProviderName());
-        if (serviceProvider.isPresent() && Objects.equals(serviceProvider.get().getServiceProviderName(), rechargeRequest.getPlanName())) {
+        if (serviceProvider.isPresent() && Objects.equals(serviceProvider.get().getServiceProviderName(),
+                rechargeRequest.getPlanName())) {
 
-            Optional<RechargePlanes> rechargePlanesId = rechangeRepositories.findByPlanIdAndPlanNameAndPlanAmount(rechargeRequest.getPlanId(), rechargeRequest.getPlanName(), String.valueOf(rechargeRequest.getPlanAmount()));
+            Optional<RechargePlanes> rechargePlanesId = rechangeRepositories.
+                    findByPlanIdAndPlanNameAndPlanAmount(rechargeRequest.getPlanId(), rechargeRequest.getPlanName(),
+                            String.valueOf(rechargeRequest.getPlanAmount()));
 
+
+            double remainAmount = 0;
             if (rechargePlanesId.isPresent()) {
 
-                // Calling bank Account Information Service
-                ResponseEntity<AccountInformation> response = restTemplate.getForEntity(URL_FOR_ACCOUNT_SERVICE + rechargeRequest.getAccountNumber() + "/" + rechargeRequest.getIfscCode() + "/" + rechargeRequest.getPassword(), AccountInformation.class);
-                AccountInformation accountInformation = response.getBody();
+                try {
 
-                double remainAmount = 0;
-                if (accountInformation != null) {
+                    // Calling bank Account Information Service
+                    ResponseEntity<AccountInformation> response = restTemplate.getForEntity(URL_FOR_ACCOUNT_SERVICE + rechargeRequest.getAccountNumber() + "/" + rechargeRequest.getIfscCode() + "/" + rechargeRequest.getPassword(), AccountInformation.class);
+                    AccountInformation accountInformation = response.getBody();
 
-                    double accountBalance = accountInformation.getAccountBalance();
-                    double rechargePack = rechargeRequest.getPlanAmount();
-                    remainAmount = accountBalance - rechargePack;
 
-                    UpdateAccountBalanceRequest updateRequest = new UpdateAccountBalanceRequest();
-                    updateRequest.setAccountNumber(rechargeRequest.getAccountNumber());
-                    updateRequest.setAccountBalance(remainAmount);
+                    if (accountInformation != null) {
 
-                    restTemplate.put(URL_FOR_ACCOUNT_UPDATE_SERVICE, updateRequest);
-                }
+                        double accountBalance = accountInformation.getAccountBalance();
+                        double rechargePack = rechargeRequest.getPlanAmount();
+                        remainAmount = accountBalance - rechargePack;
+
+                        UpdateAccountBalanceRequest updateRequest = new UpdateAccountBalanceRequest();
+                        updateRequest.setAccountNumber(rechargeRequest.getAccountNumber());
+                        updateRequest.setAccountBalance(remainAmount);
+
+                        restTemplate.put(URL_FOR_ACCOUNT_UPDATE_SERVICE, updateRequest);
+                    }
 
                 RechargePlanes rechargePlanes = rechargePlanesId.get();
 
@@ -139,6 +150,12 @@ public class TelecomServiceImpl implements TelecomService {
                 rechargeResponse.setAccountStatus(DICUCTION_IN_ACCOUNT_BALANCE);
                 rechargeResponse.setRemainAccountBalance(String.valueOf(remainAmount));
                 notificationsUtility.sendForRechargeDoneAndAccountBalanceDone(remainAmount);
+
+                } catch (HttpClientErrorException e){
+                    throw new ServiceIsDownException("The server is currently unavailable. Please try again later.");
+                } catch (RestClientException e){
+                    throw new ServiceIsDownException("Server is currently down for maintenance. Please try again later.");
+                }
 
             } else {
                 throw new RechargePlanNotFoundException("Apologies, the selected recharge pack details are not available in our database.");
@@ -172,6 +189,11 @@ public class TelecomServiceImpl implements TelecomService {
                 throw new RechargePlanNotFoundException("Recharge packs are not available for the given amount");
             }
         }
+
+        if (list.isEmpty()) {
+            throw new RechargePlanNotFoundException("No recharge plans found below the given amount");
+        }
+
         return list;
     }
 
@@ -190,6 +212,9 @@ public class TelecomServiceImpl implements TelecomService {
             } catch (RechargePacksNotFound e) {
                 throw new RechargePlanNotFoundException("Recharge packs are not available for the given amount");
             }
+        }
+        if (list.isEmpty()) {
+            throw new RechargePlanNotFoundException("No recharge plans found below the given amount");
         }
         return list;
     }
