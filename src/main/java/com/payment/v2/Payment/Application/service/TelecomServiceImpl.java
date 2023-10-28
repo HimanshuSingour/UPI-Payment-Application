@@ -193,7 +193,6 @@ public class TelecomServiceImpl implements TelecomService {
         if (list.isEmpty()) {
             throw new RechargePlanNotFoundException("No recharge plans found below the given amount");
         }
-
         return list;
     }
 
@@ -220,10 +219,16 @@ public class TelecomServiceImpl implements TelecomService {
     }
 
     @Override
-    public ActivationRequest getActivationInfo(ProviderRequest providerRequest, String packId) {
-        return null;
-    }
+    public ActivationInfo getActivationInfoByRechargePacks(String planId) {
 
+        ActivationInfo activationInfo = new ActivationInfo();
+        RechargePlanes rechargePlanes = rechangeRepositories.findByPlanId(planId);
+
+        activationInfo.setActivationCode(rechargePlanes.getActivationCode());
+        activationInfo.setMessage("To Active Your Plan, Use Above Code");
+
+        return activationInfo;
+    }
 
 }
 

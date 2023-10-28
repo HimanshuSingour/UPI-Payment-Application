@@ -1,5 +1,6 @@
 package com.payment.v2.Payment.Application.controller;
 
+import com.payment.v2.Payment.Application.dto.ActivationInfo;
 import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeRequest;
 import com.payment.v2.Payment.Application.dto.MobileRecharge.RechargeResponse;
 import com.payment.v2.Payment.Application.dto.ProviderRequest;
@@ -59,6 +60,12 @@ public class RechargeController {
     ResponseEntity<List<RechargePlanes>> giveByBelowAmount(@RequestBody ProviderRequest providerRequest){
         List<RechargePlanes> response = telecomService.getAllRechargeAboveTheGivenAmount(providerRequest);
         return new ResponseEntity<List<RechargePlanes>>(response, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/packs/activating/info/{planId}")
+    ResponseEntity<ActivationInfo> getActivationIngo(@PathVariable String planId){
+        ActivationInfo response = telecomService.getActivationInfoByRechargePacks(planId);
+        return new ResponseEntity<ActivationInfo>(response, HttpStatus.ACCEPTED);
     }
 
 }

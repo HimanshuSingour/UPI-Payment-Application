@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivationRequest {
+public class ActivationInfo {
 
-    private String Id;
+    private String activationCode;
+    private String message;
 }
