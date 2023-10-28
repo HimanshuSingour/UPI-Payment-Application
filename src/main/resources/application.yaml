@@ -24,3 +24,13 @@ spring:
     show-sql: true
 
 
+resilience4j:
+  retry:
+    instances:
+      AccountInformationService:
+        max-attempts: 3
+        wait-duration: 5s
+
+
+
+
