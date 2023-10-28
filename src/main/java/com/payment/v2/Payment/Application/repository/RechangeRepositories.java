@@ -21,6 +21,6 @@ public interface RechangeRepositories extends JpaRepository<RechargePlanes , Str
     Optional<RechargePlanes> findByPlanIdAndPlanNameAndPlanAmount(String planeId, String planName , String planAmount);
 
     @Query("SELECT u FROM RechargePlanes u WHERE u.planeId = :planeId")
-    RechargePlanes findByPlanId(String planeId);
+    Optional<RechargePlanes> findByPlanId(String planeId);
 
 }

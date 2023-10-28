@@ -222,10 +222,17 @@ public class TelecomServiceImpl implements TelecomService {
     public ActivationInfo getActivationInfoByRechargePacks(String planId) {
 
         ActivationInfo activationInfo = new ActivationInfo();
-        RechargePlanes rechargePlanes = rechangeRepositories.findByPlanId(planId);
+        Optional<RechargePlanes> rechargePlanes = rechangeRepositories.findByPlanId(planId);
 
-        activationInfo.setActivationCode(rechargePlanes.getActivationCode());
-        activationInfo.setMessage("To Active Your Plan, Use Above Code");
+        if(rechargePlanes.isPresent()){
+
+            activationInfo.setActivationCode(rechargePlanes.get().getActivationCode());
+            activationInfo.setMessage("To Active Your Plan, Use Above Code");
+        }
+        else{
+
+            throw new RechargePlanNotFoundException("Pack Not Found..");
+        }
 
         return activationInfo;
     }
